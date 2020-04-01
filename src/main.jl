@@ -6,6 +6,7 @@ function newLeafFindingMst(h::Graph)::Graph
     g = deepcopy(h)
     f = Graph(nv(g))
 
+    println("jestem w funkcji newLeaf")
 
     if ! is_connected(g)
         error("Graf nie jest spójny")
