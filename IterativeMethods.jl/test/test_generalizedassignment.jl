@@ -24,7 +24,7 @@ using IterativeMethods
     machines_times = Array{Float64}(undef, 3)
     fill!(machines_times, 3.)
 
-    f = generalized_assignment(g, 7, processing_times, machines_times)
+    f = generalized_a  ssignment(g, 7, processing_times, machines_times)
 
 
     @test ne(f) == 7 # liczba zadan
