@@ -1,6 +1,3 @@
-using MyGraph
-using JuMP
-using GLPK
 
 function mst_with_oracle(h::Graph)::Graph
     g = deepcopy(h)
@@ -16,39 +13,29 @@ function mst_with_oracle(h::Graph)::Graph
         end
         @assert is_connected(g)
 
-        model = Model(GLPK.Optimizer)
+        model = Model(actual_optimizer) # actual_optimizer jest zmienna modulowa
         subsets = Vector{Vector{Int}}(undef, 0)
         is_feasible = false
         @variable(model, 0 <= x[vi in vertices(g), vj in vertices(g);
             vi > vj && has_edge(g, vi, vj)])
 
+        ex = AffExpr()
+        for vi in vertices(g), vj in vertices(g)
+            if vi > vj && has_edge(g, vi, vj)
+                add_to_expression!(ex, weight(g, vi, vj), x[vi, vj])
+            end
+        end
+
+        @objective(model, Min, ex)
+        ex = AffExpr()
+        for vi in vertices(g), vj in vertices(g)
+            if vi > vj && has_edge(g, vi, vj)
+                add_to_expression!(ex, 1, x[vi, vj])
+            end
+        end
+        @constraint(model, ex == nv(g) - 1)
+
         while !is_feasible
-            ex = AffExpr()
-            for vi in vertices(g), vj in vertices(g)
-                if vi > vj && has_edge(g, vi, vj)
-                    add_to_expression!(ex, weight(g, vi, vj), x[vi, vj])
-                end
-            end
-            @objective(model, Min, ex)
-
-            ex = AffExpr()
-            for vi in vertices(g), vj in vertices(g)
-                if vi > vj && has_edge(g, vi, vj)
-                    add_to_expression!(ex, 1, x[vi, vj])
-                end
-            end
-            @constraint(model, ex == nv(g) - 1)
-
-            for set in subsets
-                ex = AffExpr()
-                for vi in set, vj in set
-                    if vi > vj && has_edge(g, vi, vj)
-                        add_to_expression!(ex, 1, x[vi, vj])
-                    end
-                end
-                @constraint(model, ex <= length(set) - 1)
-            end
-
             optimize!(model)
             if termination_status(model) != MOI.OPTIMAL
                 error(("Nie znalezniono optymalnego rozwiązania", termination_status(model), model))
@@ -80,8 +67,15 @@ function mst_with_oracle(h::Graph)::Graph
 
                     flow, visited = fordfulkerson(gprim, source, sink)
                     if round(flow, digits = 4)< nv(g)
-                        push!(subsets, filter(x -> x != source, visited))
+                        filter!(x -> x != source, visited)
                         is_feasible = false
+                        ex = AffExpr()
+                        for vi in visited, vj in visited
+                            if vi > vj && has_edge(g, vi, vj)
+                                add_to_expression!(ex, 1, x[vi, vj])
+                            end
+                        end
+                        @constraint(model, ex <= length(visited) - 1)
                         break
                     end
 
