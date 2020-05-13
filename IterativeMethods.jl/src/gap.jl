@@ -35,7 +35,7 @@ function generalized_assignment(h::Graph, jobs_n::Int,
 
 
     while length(jobs) != 0
-        model = Model(GLPK.Optimizer)
+        model = Model(actual_optimizer)
         @variable(model,0 <= x[vi in vertices(g), vj in vertices(g); has_edge(g, vj, vi) && vj < vi] <= 1)
 
         ex = AffExpr();
