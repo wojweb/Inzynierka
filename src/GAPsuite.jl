@@ -73,6 +73,10 @@ end
 wyniki = Vector{gapinfo}(undef, 0)
 
 for i = 1:12
+     w = process(Base.read("testdatabase/gap$(i).txt",String))
+     print(w[1].time)
+end
+for i = 1:12
     global wyniki
     println("plik gap$(i).txt")
     content = Base.read("testdatabase/gap$(i).txt", String)
