@@ -1,11 +1,16 @@
 using MyGraph
 using IterativeMethods
+using JLD
+
 
 function process(content::String)
     content_int = [parse(Int,x) for x in split(content)]
 
     numberOfProblems = content_int[1]
     content_int = content_int[2:end]
+
+    stats = Vector{gapinfo}(undef, 0)
+
     for n = 1:numberOfProblems
         numberOfMachines = content_int[1]
         numberOfJobs = content_int[2]
@@ -37,7 +42,7 @@ function process(content::String)
         # println(g)
         # println(machienes_times)
 
-        t = @elapsed f = generalized_assignment(g, numberOfJobs, processing_times, machienes_times)
+        t = @elapsed (f, info) = generalized_assignment(g, numberOfJobs, processing_times, machienes_times)
 
         numberOfExceededMachiens = 0
         averegeOfExtraTime = 0
@@ -49,20 +54,29 @@ function process(content::String)
             end
             if time > machienes_times[i]
                 # println("$(time), $(machienes_times[i])")
-                numberOfExceededMachiens += 1
-                averegeOfExtraTime += time / machienes_times[i]
+                info.exceeded_machines_n = info.exceeded_machines_n + 1
+                push!(info.ratio_time, time / machienes_times[i] - 1)
             end
         end
 
-        println("$(numberOfJobs), $(numberOfMachines), $(weight(f)), $(numberOfExceededMachiens), $(averegeOfExtraTime / numberOfExceededMachiens), $(t)")
+        info.time = t
+        info.solution  = weight(f)
+
+        push!(stats, info)
 
     end
 
+    return stats
+
 end
 
+wyniki = Vector{gapinfo}(undef, 0)
 
 for i = 1:12
+    global wyniki
     println("plik gap$(i).txt")
     content = Base.read("testdatabase/gap$(i).txt", String)
-    process(content)
+    wyniki = [wyniki; process(content)]
 end
+
+JLD.save("wyniki.jld", "wyniki", wyniki)

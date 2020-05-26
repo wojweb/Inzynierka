@@ -2,17 +2,30 @@ using MyGraph
 using JuMP
 using GLPK
 
+mutable struct gapinfo
+        time::Float64
+        solution::Float64
+        machines_n::Int
+        jobs_n::Int
+        exceeded_machines_n::Int
+        ratio_time::Vector{Float64}
+        number_of_edges::Vector{Int}
+
+end
+
 # processing_times jobs x machines
 function generalized_assignment(h::Graph, jobs_n::Int,
      processing_times::Array{Float64, 2},
-     machines_times::Vector{Float64})::Graph
+     machines_times::Vector{Float64})::Tuple{Graph, gapinfo}
 
-    f = Graph(nv(h))
-    g = deepcopy(h)
-    machines_times = deepcopy(machines_times)
-    if !is_bipartite(g)
+     info = gapinfo(0, 0, length(machines_times), jobs_n, 0, Vector{Int}(undef, 0), Vector{Int}(undef, 0))
+
+     f = Graph(nv(h))
+     g = deepcopy(h)
+     machines_times = deepcopy(machines_times)
+     if !is_bipartite(g)
         error("Graf nie jest dwudzielny")
-    end
+     end
 
     jobs = Vector{Int}(undef, jobs_n)
     machines = Vector{Int}(undef, nv(g) - jobs_n)
@@ -35,6 +48,8 @@ function generalized_assignment(h::Graph, jobs_n::Int,
 
 
     while length(jobs) != 0
+
+        push!(info.number_of_edges, ne(g))
         model = Model(actual_optimizer)
         @variable(model,0 <= x[vi in vertices(g), vj in vertices(g); has_edge(g, vj, vi) && vj < vi] <= 1)
 
@@ -99,5 +114,5 @@ function generalized_assignment(h::Graph, jobs_n::Int,
 
     end
 
-    return f
+    return (f, info)
 end
