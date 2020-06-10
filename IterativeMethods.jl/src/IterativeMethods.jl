@@ -8,9 +8,11 @@ module IterativeMethods
 
     export mst_with_oracle
     export generalized_assignment
-    export gapinfo
+    export mbst_additive_two, mbst_additive_one
 
-    include("mst_with_oracle.jl")
     include("gap.jl")
+    include("mbst+1.jl")
+    include("mbst+2.jl")
+    include("snd.jl")
 
 end

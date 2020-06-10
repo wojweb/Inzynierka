@@ -2,23 +2,12 @@ using MyGraph
 using JuMP
 using GLPK
 
-mutable struct gapinfo
-        time::Float64
-        solution::Float64
-        machines_n::Int
-        jobs_n::Int
-        exceeded_machines_n::Int
-        ratio_time::Vector{Float64}
-        number_of_edges::Vector{Int}
-
-end
-
 # processing_times jobs x machines
 function generalized_assignment(h::Graph, jobs_n::Int,
      processing_times::Array{Float64, 2},
-     machines_times::Vector{Float64})::Tuple{Graph, gapinfo}
+     machines_times::Vector{Float64})::Tuple{Graph, Vector{Int}}
 
-     info = gapinfo(0, 0, length(machines_times), jobs_n, 0, Vector{Int}(undef, 0), Vector{Int}(undef, 0))
+    number_of_edges_per_iteration = Vector{Int}(undef, 0)
 
      f = Graph(nv(h))
      g = deepcopy(h)
@@ -49,7 +38,7 @@ function generalized_assignment(h::Graph, jobs_n::Int,
 
     while length(jobs) != 0
 
-        push!(info.number_of_edges, ne(g))
+        push!(number_of_edges_per_iteration, ne(g))
         model = Model(actual_optimizer)
         @variable(model,0 <= x[vi in vertices(g), vj in vertices(g); has_edge(g, vj, vi) && vj < vi] <= 1)
 
@@ -61,7 +50,6 @@ function generalized_assignment(h::Graph, jobs_n::Int,
         end
 
         @objective(model, Max, ex)
-
 
         for j in jobs
             ex = AffExpr()
@@ -114,5 +102,5 @@ function generalized_assignment(h::Graph, jobs_n::Int,
 
     end
 
-    return (f, info)
+    return (f, number_of_edges_per_iteration)
 end
