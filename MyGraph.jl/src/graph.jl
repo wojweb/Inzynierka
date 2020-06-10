@@ -106,6 +106,18 @@ function delta(g::Graph, v::Int)::Vector{Int}
     return [first(e) for e = g.edges[v]]
 end
 
+function delta(g::Graph, vs::Vector{Int})::Vector{Int}
+    answer = Vector{Int}(undef, 0)
+    for v in vs
+        for vi in delta(g, v)
+            if !in(vi, answer) && !in(vi, vs)
+                push!(answer, vi)
+            end
+        end
+    end
+    return answer
+end
+
 function delta_in(g::Graph, v::Int)::Vector{Int}
     d_in = Vector{Int}(undef, 0)
 

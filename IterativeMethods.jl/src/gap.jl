@@ -3,7 +3,7 @@ using JuMP
 using GLPK
 
 # processing_times jobs x machines
-function generalized_assignment(h::Graph, jobs_n::Int,
+function gap(h::Graph, jobs_n::Int,
      processing_times::Array{Float64, 2},
      machines_times::Vector{Float64})::Tuple{Graph, Vector{Int}}
 

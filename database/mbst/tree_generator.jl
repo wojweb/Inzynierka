@@ -1,3 +1,4 @@
+push!(LOAD_PATH, pwd())
 using MyGraph
 
 sizes = [30, 40, 50, 60] # rozmiary generowanych grafów 

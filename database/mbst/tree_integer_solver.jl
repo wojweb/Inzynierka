@@ -37,7 +37,6 @@ function mbst_opt(h::Graph, b::Int)::Int
         if vi > vj && has_edge(g, vi, vj)
             add_to_expression!(ex, 1, x[vi, vj])
             add_to_expression!(ey, 1, y[vi, vj])
-    
         end
     end
     @constraint(model, ex == nv(g) - 1)
@@ -128,13 +127,12 @@ end
 
 bounds = [2,3,5]
 
-bounds = [5]
 
 for b = bounds
     open("database/mbst/optsb$(b)pp.txt", "w") do io
 
 
-        content = Base.read("database/mbst/treesp.txt",String)
+        content = Base.read("database/mbst/trees.txt",String)
         content_float = [parse(Float64,x) for x in split(content)]
 
         n = Int(content_float[1])
@@ -153,10 +151,8 @@ for b = bounds
                     content_float = content_float[2:end]
                 end
             end
-            println("zaczynam")
             opt = mbst_opt(g, b)
             write(io, "$(opt)\n")
-
         end
     end
 end

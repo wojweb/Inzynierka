@@ -3,7 +3,7 @@ using MyGraph
 using JuMP
 using CPLEX
 
-function snd_opt(h::Graph, r::Array{Int, 2})::Int
+function snd_opt(h::Graph, r::Array{Int, 2})::Float64
     g = deepcopy(h)
     model = Model(CPLEX.Optimizer)
     intModel = Model(CPLEX.Optimizer)
@@ -90,7 +90,7 @@ function snd_opt(h::Graph, r::Array{Int, 2})::Int
     end    
     optimize!(intModel)
     
-    return  round(objective_value(intModel))
+    return  objective_value(intModel)
     
 end
 
