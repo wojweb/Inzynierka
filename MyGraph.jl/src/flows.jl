@@ -25,7 +25,6 @@ function fordfulkerson(g::Graph, s::Int, t::Int)::Tuple{Float64, Array{Int, 1}}
     maxflow = 0
 
     is_reachable, visited = bfs(resg, s, t, parents)
-
     is_good = true
     for vi in vertices(resg), vj in vertices(resg)
         if has_edge(resg, vi, vj) && weight(resg, vi, vj) < 0

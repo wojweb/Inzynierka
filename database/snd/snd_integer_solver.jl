@@ -1,11 +1,12 @@
+push!(LOAD_PATH, pwd())
 using MyGraph
 using JuMP
-using GLPK
+using CPLEX
 
-function snd_opt(h::Graph, r::Array{Float64, 2})::Int
+function snd_opt(h::Graph, r::Array{Int, 2})::Int
     g = deepcopy(h)
-    model = Model(GLPK.Optimizer)
-    intModel = Model(GLPK.Optimizer)
+    model = Model(CPLEX.Optimizer)
+    intModel = Model(CPLEX.Optimizer)
     
     subsets = Vector{Vector{Int}}(undef, 0)
     is_feasible = false
@@ -30,47 +31,62 @@ function snd_opt(h::Graph, r::Array{Float64, 2})::Int
     @objective(intModel, Min, ey)
     
     ex = AffExpr()
-    ey = AffExpr()   
+    ey = AffExpr()  
+    
+    counter = 1
     
     while !is_feasible
         optimize!(model)
+
+
+        println("$(counter): $(objective_value(model))")
+        counter += 1
+
         if termination_status(model) != MOI.OPTIMAL
             error(("Nie znalezniono optymalnego rozwiązania", termination_status(model), model))
         end
         is_feasible = true
-    
         for vx in vertices(g), vy in vertices(g)
-
+            if vx != vy
                 gprim = Graph(nv(h), true) # source = nv, sink = nv + 1
                 source = vx
                 sink = vy
                 for vi in vertices(g), vj in vertices(g)
                     if vi > vj && has_edge(g, vi, vj)
-                        add_edge!(gprim, vi, vj,  round(value(x[vi, vj]), digits=8))
-                        add_edge!(gprim, vj, vi,  round(value(x[vi, vj]), digits=8))
+                        add_edge!(gprim, vi, vj,  round(JuMP.value(x[vi, vj]), digits=8))
+                        add_edge!(gprim, vj, vi,  round(JuMP.value(x[vi, vj]), digits=8))
                     end
                 end
-    
     
                 flow, visited = fordfulkerson(gprim, source, sink)
                 if round(flow, digits = 4) < r[source, sink]
-                    filter!(x -> x != source, visited)
                     is_feasible = false
                     ex = AffExpr()
                     ey = AffExpr()
-    
-                    for vi in visited, vj in visited
+
+                    
+                    r_max = 0
+                    for vi in visited, vj in [v for v in vertices(g) if !in(v, visited)]
                         if vi > vj && has_edge(g, vi, vj)
                             add_to_expression!(ex, 1, x[vi, vj])
                             add_to_expression!(ey, 1, y[vi, vj])
-    
+                        end
+                        if vj > vi && has_edge(g, vi, vj)
+                            add_to_expression!(ex, 1, x[vj, vi])
+                            add_to_expression!(ey, 1, y[vj, vi])
+                        end
+
+                        if r[vi, vj] >= r_max
+                            r_max = r[vi, vj]
                         end
                     end
-                    @constraint(model, ex >= r[source, sink])
-                    @constraint(intModel, ey >= r[source, sink])
+
+                    @constraint(model, ex >= r_max)
+                    @constraint(intModel, ey >= r_max)
                     break
                 end
             end
+        end
     end    
     optimize!(intModel)
     
@@ -79,13 +95,14 @@ function snd_opt(h::Graph, r::Array{Float64, 2})::Int
 end
 
 
-open("database/snd/opt.txt", "w") do io
+open("database/snd/optBig.txt", "w") do io
     content = Base.read("database/snd/networks.txt",String)
     content_float = [parse(Float64,x) for x in split(content)]
 
     n = Int(content_float[1])
     content_float = content_float[2:end]
-    for i = 1:1
+    for i = 1:n
+        
         size = Int(content_float[1])
         content_float = content_float[2:end]
 
@@ -97,19 +114,22 @@ open("database/snd/opt.txt", "w") do io
             end
         end
 
-        r = Array{Float64}(undef, size, size)
-
+        r = Array{Int}(undef, size, size)
         for col = 1:size
             for row = 1:size
-                r[col, row] = content_float[1]
+                r[col, row] = Int(content_float[1])
                 content_float = content_float[2:end]
             end
         end
 
-        println("zaczynam")
-        opt = snd_opt(g, r)
-        write(io, "$(opt)\n")
 
-        println(r)
+        println("zaczynam")
+
+        opt = snd_opt(g, r)
+        
+        write(io, "$(opt)\n")
+        flush(io)
+        println(opt)
+        # println(r)
     end
 end

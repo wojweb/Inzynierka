@@ -1,13 +1,17 @@
+import Pkg; Pkg.add("LightXML")
 using LightXML
+push!(LOAD_PATH, pwd())
+using MyGraph
 
 relation = Dict()
-sizes = [30, 35, 40, 45, 50]
+sizes = [13, 14, 15, 16, 17]
 
 open("database/snd/networks.txt", "w") do io
+    write(io, "$(length(sizes) * 5)\n")
+
     for size = sizes
-        write(io, "$(length(sizes) * 5)\n")
         for n = 1:5
-            xdoc = parse_file("/home/pan/Studia/inzynierka/database/snd/directed-germany50-DFN-aggregated-1month-over-1year/demandMatrix-germany50-DFN-1month-20040$(n).xml")
+            xdoc = parse_file("/home/s236592/Inzynierka/database/snd/directed-germany50-DFN-aggregated-1month-over-1year/demandMatrix-germany50-DFN-1month-20040$(n).xml")
 
             xroot = root(xdoc)
 
@@ -41,12 +45,9 @@ open("database/snd/networks.txt", "w") do io
                 elseif value_float < 50.
                     requirement = 4
                 else
-                                    requirement = 5
+                    requirement = 5
                 end
-                
-                if size >= 40 && value_float >= 100
-                    requirement = 6
-                end
+
 
                 r[first(relation[source]), first(relation[target])] = requirement
             end
@@ -60,7 +61,7 @@ open("database/snd/networks.txt", "w") do io
                 end
             end
 
-            for i = size + 1:50
+            for i = size + 1:nv(g)
                 rem_vertex!(g, i)
             end
             write(io, "$(size)\n")
