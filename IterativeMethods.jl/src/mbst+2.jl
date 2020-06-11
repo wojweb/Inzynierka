@@ -2,7 +2,7 @@ function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
     g = deepcopy(h)
     f = Graph(nv(g))
 
-    if ! is_connected(g)
+    if !is_connected(g)
         error("Graf nie jest spójny")
     end
 
@@ -51,7 +51,7 @@ function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
                     end
                 end
             end
-            @constraint(model, ex <= b)
+            @constraint(model, ex <= b[vi])
         end
 
         while !is_feasible
@@ -108,15 +108,21 @@ function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
             end
         end
 
-        is_leaf = false
-        for vi in vertices(g)
-            if degree(g, vi) == 1
-                vj = delta(g, vi)[1]
-                add_edge!(f, vi, vj, weight(g, vi, vj))
-                rem_vertex!(g, vi)
-                is_leaf = true
+
+        is_leaf = true
+        while(is_leaf)
+            is_leaf = false
+            for vi in vertices(g)
+                if degree(g, vi) == 1
+                    vj = delta(g, vi)[1]
+                    add_edge!(f, vi, vj, weight(g, vi, vj))
+                    rem_vertex!(g, vi)
+                    is_leaf = true
+                    break;
+                end
             end
         end
+
     end
     return f
 end

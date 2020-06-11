@@ -13,7 +13,7 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
         end
     end
 
-    while nv(g) >= 2
+    while  length(w) > 0
         if !is_connected(g)
             print(g)
         end
@@ -41,7 +41,7 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
         end
         @constraint(model, ex == nv(g) - 1)
 
-        for vi in vertices(g)
+        for vi in w
             ex = AffExpr()
             for vj in vertices(g)
                 if has_edge(g, vi, vj)
@@ -52,7 +52,7 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
                     end
                 end
             end
-            @constraint(model, ex <= b)
+            @constraint(model, ex <= b[vi])
         end
 
         while !is_feasible
@@ -109,14 +109,26 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
             end
         end
 
-        for vi in vertices(g)
-            if degree(g, vi) == 1
-                vj = delta(g, vi)[1]
-                add_edge!(f, vi, vj, weight(g, vi, vj))
-                rem_vertex!(g, vi)
-                break
+        for vi in w
+            if degree(g,vi) <= b[vi] + 1
+                setdiff!(w, [vi])
+                break;
             end
         end
+    end
+
+    # Prim algorithm
+    connected_vertices = [1]
+    while length(connected_vertices) != nv(g)
+        min_edge = (floatmax(),0,0)
+        for vi in connected_vertices, vj in
+            [v for v in vertices(g) if !in(v, connected_vertices)]
+            if has_edge(g, vi, vj) && weight(g, vi, vj) < first(min_edge)
+                min_edge = (weight(g, vi, vj), vi, vj)
+            end
+        end
+        add_edge!(f, min_edge[2], min_edge[3], min_edge[1])
+        push!(connected_vertices, min_edge[3])
     end
     return f
 end
