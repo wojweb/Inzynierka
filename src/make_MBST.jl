@@ -21,6 +21,28 @@ exceeded_vertices_fraction_1 = Vector{Float64}(undef, 0)
 exceeded_byone_vertices_fraction_2 = Vector{Float64}(undef, 0)
 exceeded_bytwo_vertices_fraction_2 = Vector{Float64}(undef, 0)
 
+# Rozgrzewkowy
+begin
+    b = 5
+content = Base.read("database/mbst/trees.txt",String)
+content_float = [parse(Float64,x) for x in split(content)]
+size = Int(content_float[1])
+content_float = content_float[2:end]
+
+g = Graph(size)
+
+for v = 1:size
+    for vi = v + 1:size
+        global content_float
+        
+        add_edge!(g, v, vi, content_float[1])
+        content_float = content_float[2:end]
+    end
+end
+t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+end
+
+println("Rozgrzany")
 
 for b = bounds
     content = Base.read("database/mbst/trees.txt",String)
@@ -43,18 +65,45 @@ for b = bounds
                 content_float = content_float[2:end]
             end
         end
-        t = @elapsed (f = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+        t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
         push!(times_1, t)
         PRD = 100 * (weight(f) - opts[1]) / opts[1]
         push!(PRDs_1, PRD)
+        push!(model_size_per_iterations_1, [Float64(model_size) / Float64(model_sizes_int[1]) for model_size in model_sizes_int])
+        sum_of_exceeded = 0
+        for v in vertices(f)
+            if length(delta(f, v)) == b + 1
+                sum_of_exceeded += 1
+            end
+            if length(delta(f, v)) > b + 1
+                println("Jest blad w programie 1")
+            end
+        end
+        push!(exceeded_vertices_fraction_1, Float64(sum_of_exceeded) / Float64(nv(f)))
 
-
-        t = @elapsed f = mbst_additive_two(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+        t = @elapsed (f, model_sizes_int) = mbst_additive_two(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
         push!(times_2, t)
         PRD = 100 * (weight(f) - opts[1]) / opts[1]
         opts = opts[2:end]
         push!(PRDs_2, PRD)
-
+        push!(model_size_per_iterations_2, [Float64(model_size) / Float64(model_sizes_int[1]) for model_size in model_sizes_int])
+        sum_of_exceeded = 0
+        for v in vertices(f)
+            if length(delta(f, v)) == b + 1
+                sum_of_exceeded += 1
+            end
+        end
+        push!(exceeded_byone_vertices_fraction_2, Float64(sum_of_exceeded) / Float64(nv(f)))
+        sum_of_exceeded = 0
+        for v in vertices(f)
+            if length(delta(f, v)) == b + 2
+                sum_of_exceeded += 1
+            end
+            if length(delta(f, v)) > b + 2
+                println("Jest blad w programie 2")
+            end
+        end
+        push!(exceeded_bytwo_vertices_fraction_2, Float64(sum_of_exceeded) / Float64(nv(g)))
 
     end
 end

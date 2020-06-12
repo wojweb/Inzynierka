@@ -1,4 +1,4 @@
-function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
+function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Tuple{Graph, Vector{Int}}
     g = deepcopy(h)
     w = deepcopy(w)
     f = Graph(nv(g))

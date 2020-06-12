@@ -2,9 +2,9 @@ module IterativeMethods
     using MyGraph
     using JuMP
     using GLPK
-    using CPLEX
+    # using CPLEX
 
-    actual_optimizer = CPLEX.Optimizer
+    actual_optimizer = GLPK.Optimizer
 
     export gap
     export mbst_additive_one, mbst_additive_two
