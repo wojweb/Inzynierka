@@ -1,11 +1,11 @@
 using MyGraph
 using JuMP
-using CPLEX
+using GLPK
 
 function mbst_opt(h::Graph, b::Int)::Int
     g = deepcopy(h)
-    model = Model(CPLEX.Optimizer)
-    intModel = Model(CPLEX.Optimizer)
+    model = Model(GLPK.Optimizer)
+    intModel = Model(GLPK.Optimizer)
     
     subsets = Vector{Vector{Int}}(undef, 0)
     is_feasible = false
@@ -129,10 +129,10 @@ bounds = [2,3,5]
 
 
 for b = bounds
-    open("database/mbst/optsb$(b)pp.txt", "w") do io
+    open("database/mbst/small_optsb$(b)pp.txt", "w") do io
 
 
-        content = Base.read("database/mbst/trees.txt",String)
+        content = Base.read("database/mbst/small_trees.txt",String)
         content_float = [parse(Float64,x) for x in split(content)]
 
         n = Int(content_float[1])
@@ -151,7 +151,7 @@ for b = bounds
                     content_float = content_float[2:end]
                 end
             end
-            opt = mbst_opt(g, b)
+            t = @elapsed opt = mbst_opt(g, b)
             write(io, "$(opt)\n")
         end
     end

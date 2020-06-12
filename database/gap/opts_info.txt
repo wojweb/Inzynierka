@@ -1,0 +1,3 @@
+Plik opts.txt zawiera wartości optymalne wszystkich egzemplarzy z plików gap1.txt - gap12.txt
+w tej same kolejności co są przedstawione w plikach. Każdy wiersz zawiera wartości dla innej
+konfiguracje, a różnice w ilości maszyn są oznaczone pustym wierszem.
