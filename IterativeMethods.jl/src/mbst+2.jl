@@ -1,6 +1,8 @@
-function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
+function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Tuple{Graph, Vector{Int}}
     g = deepcopy(h)
     f = Graph(nv(g))
+
+    number_of_edges = Vector{Int}(undef, 0)
 
     if !is_connected(g)
         error("Graf nie jest spójny")
@@ -24,6 +26,7 @@ function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
         @variable(model, 0 <= x[vi in vertices(g), vj in vertices(g);
             vi > vj && has_edge(g, vi, vj)])
 
+        push!(number_of_edges, ne(g))
         ex = AffExpr()
         for vi in vertices(g), vj in vertices(g)
             if vi > vj && has_edge(g, vi, vj)
@@ -140,5 +143,5 @@ function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
         end
 
     end
-    return f
+    return (f, number_of_edges)
 end

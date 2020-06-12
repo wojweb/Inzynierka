@@ -3,6 +3,8 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
     w = deepcopy(w)
     f = Graph(nv(g))
 
+    number_of_edges = Vector{Int}(undef, 0)
+
     if ! is_connected(g)
         error("Graf nie jest spójny")
     end
@@ -25,6 +27,7 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
         @variable(model, 0 <= x[vi in vertices(g), vj in vertices(g);
             vi > vj && has_edge(g, vi, vj)])
 
+        push!(number_of_edges, ne(g))
         ex = AffExpr()
         for vi in vertices(g), vj in vertices(g)
             if vi > vj && has_edge(g, vi, vj)
@@ -131,5 +134,5 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
         add_edge!(f, min_edge[2], min_edge[3], min_edge[1])
         push!(connected_vertices, min_edge[3])
     end
-    return f
+    return (f, number_of_edges)
 end

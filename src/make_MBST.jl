@@ -1,4 +1,8 @@
 push!(LOAD_PATH, pwd())
+import Pkg
+Pkg.add("Plots")
+Pkg.add("GR")
+Pkg.add("Statistics")
 using MyGraph
 using IterativeMethods
 using Plots
@@ -9,11 +13,19 @@ bounds = [2, 3, 5]
 
 times_1 = Vector{Float64}(undef, 0)
 times_2 = Vector{Float64}(undef, 0)
+PRDs_1 = Vector{Float64}(undef, 0)
+PRDs_2 = Vector{Float64}(undef, 0)
+model_size_per_iterations_1 = Vector{Vector{Float64}}(undef, 0)
+model_size_per_iterations_2 = Vector{Vector{Float64}}(undef, 0)
+exceeded_vertices_fraction_1 = Vector{Float64}(undef, 0)
+exceeded_byone_vertices_fraction_2 = Vector{Float64}(undef, 0)
+exceeded_bytwo_vertices_fraction_2 = Vector{Float64}(undef, 0)
 
 
 for b = bounds
     content = Base.read("database/mbst/trees.txt",String)
     content_float = [parse(Float64,x) for x in split(content)]
+    opts = Base.read("database/mbst/optsb$(b).txt")
     
     n = Int(content_float[1])
     content_float = content_float[2:end]
@@ -31,11 +43,18 @@ for b = bounds
                 content_float = content_float[2:end]
             end
         end
-        t = @elapsed f = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+        t = @elapsed (f = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
         push!(times_1, t)
+        PRD = 100 * (weight(f) - opts[1]) / opts[1]
+        push!(PRDs_1, PRD)
+
 
         t = @elapsed f = mbst_additive_two(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
         push!(times_2, t)
+        PRD = 100 * (weight(f) - opts[1]) / opts[1]
+        opts = opts[2:end]
+        push!(PRDs_2, PRD)
+
 
     end
 end
