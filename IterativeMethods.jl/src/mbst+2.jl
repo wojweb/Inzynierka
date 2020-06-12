@@ -56,11 +56,11 @@ function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
 
         while !is_feasible
             optimize!(model)
+
             if termination_status(model) != MOI.OPTIMAL
                 error(("Nie znalezniono optymalnego rozwiązania", termination_status(model), model))
             end
             is_feasible = true
-
             for vx in vertices(g), vy in vertices(g)
                 if vx > vy
                     gprim = Graph(nv(h) + 2, true) # source = nv, sink = nv + 1
@@ -108,17 +108,33 @@ function mbst_additive_two(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
             end
         end
 
-
-        is_leaf = true
-        while(is_leaf)
-            is_leaf = false
+        is_leaf = false
+        may_be_more_leafs = true
+        while(may_be_more_leafs)
+            may_be_more_leafs = false
             for vi in vertices(g)
                 if degree(g, vi) == 1
                     vj = delta(g, vi)[1]
                     add_edge!(f, vi, vj, weight(g, vi, vj))
                     rem_vertex!(g, vi)
+                    if in(vi, keys(b))
+                        setdiff!(w, vi)
+                    end
+                    if in(vj, keys(b))
+                        b[vj] = b[vj] - 1
+                    end
                     is_leaf = true
+                    may_be_more_leafs = true
                     break;
+                end
+            end
+        end
+
+        if !is_leaf
+            for vi in w
+                if degree(g, vi) <= 3
+                    setdiff!(w, vi)
+                    break
                 end
             end
         end

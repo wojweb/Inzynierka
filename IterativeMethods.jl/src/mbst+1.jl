@@ -56,7 +56,7 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
         end
 
         while !is_feasible
-            optimize!(model)
+            t = @elapsed optimize!(model)
             if termination_status(model) != MOI.OPTIMAL
                 error(("Nie znalezniono optymalnego rozwiązania", termination_status(model), model))
             end
@@ -115,6 +115,7 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Graph
                 break;
             end
         end
+
     end
 
     # Prim algorithm
