@@ -115,7 +115,6 @@ function mbst_additive_one(h::Graph, w::Set{Int}, b::Dict{Int, Int})::Tuple{Grap
         for vi in w
             if degree(g,vi) <= b[vi] + 1
                 setdiff!(w, [vi])
-                break;
             end
         end
 

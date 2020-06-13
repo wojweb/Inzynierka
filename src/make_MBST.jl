@@ -1,112 +1,123 @@
-push!(LOAD_PATH, pwd())
-import Pkg
-Pkg.add("Plots")
-Pkg.add("GR")
-Pkg.add("Statistics")
-using MyGraph
-using IterativeMethods
+ push!(LOAD_PATH, pwd())
+ import Pkg
+#  Pkg.add("Plots")
+#  Pkg.add("GR")
+#  Pkg.add("Statistics")
+ using MyGraph
+ using IterativeMethods
 using Plots
 using GR
 using Statistics
 
 bounds = [2, 3, 5]
 
-times_1 = Vector{Float64}(undef, 0)
-times_2 = Vector{Float64}(undef, 0)
-PRDs_1 = Vector{Float64}(undef, 0)
-PRDs_2 = Vector{Float64}(undef, 0)
-model_size_per_iterations_1 = Vector{Vector{Float64}}(undef, 0)
-model_size_per_iterations_2 = Vector{Vector{Float64}}(undef, 0)
-exceeded_vertices_fraction_1 = Vector{Float64}(undef, 0)
-exceeded_byone_vertices_fraction_2 = Vector{Float64}(undef, 0)
-exceeded_bytwo_vertices_fraction_2 = Vector{Float64}(undef, 0)
+# times_1 = Dict{Int, Vector{Float64}}()
+# times_2 = Dict{Int, Vector{Float64}}()
+# PRDs_1 = Dict{Int, Vector{Float64}}()
+# PRDs_2 = Dict{Int, Vector{Float64}}()
 
-# Rozgrzewkowy
-begin
-    b = 5
-content = Base.read("database/mbst/trees.txt",String)
-content_float = [parse(Float64,x) for x in split(content)]
-size = Int(content_float[1])
-content_float = content_float[2:end]
+# exceeded_vertices_1 = Dict{Int, Vector{Int}}()
+# exceeded_byone_vertices_2 = Dict{Int, Vector{Int}}()
+# exceeded_bytwo_vertices_2 = Dict{Int, Vector{Int}}()
 
-g = Graph(size)
+# # # Rozgrzewkowy
+# begin
+# b = 5
+# content = Base.read("database/mbst/trees.txt",String)
+# content_float = [parse(Float64,x) for x in split(content)]
+# size = Int(content_float[1])
+# content_float = content_float[2:end]
 
-for v = 1:size
-    for vi = v + 1:size
-        global content_float
+# g = Graph(size)
+
+# for v = 1:size
+#     for vi = v + 1:size
+#         global content_float
         
-        add_edge!(g, v, vi, content_float[1])
-        content_float = content_float[2:end]
-    end
-end
-t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
-end
+#         add_edge!(g, v, vi, content_float[1])
+#         content_float = content_float[2:end]
+#     end
+# end
+# t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+# end
 
-println("Rozgrzany")
+# println("Rozgrzany")
 
-for b = bounds
-    content = Base.read("database/mbst/trees.txt",String)
-    content_float = [parse(Float64,x) for x in split(content)]
-    opts = Base.read("database/mbst/optsb$(b).txt")
+# sizes = [10,11,12,13,14,15,16,17,18,19,20]
+
+# for b = bounds
+#     times_1[b] = Vector{Float64}(undef, 0)
+#     times_2[b] = Vector{Float64}(undef, 0)
+#     PRDs_1[b] = Vector{Float64}(undef, 0)
+#     PRDs_2[b] = Vector{Float64}(undef, 0)
+
+#     exceeded_vertices_1[b] = Vector{Int}(undef, 0)
+#     exceeded_byone_vertices_2[b] = Vector{Int}(undef, 0)
+#     exceeded_bytwo_vertices_2[b] = Vector{Int}(undef, 0)
+
+#     content = Base.read("database/mbst/small_trees.txt",String)
+#     content_float = [parse(Float64,x) for x in split(content)]
+#     content = Base.read("database/mbst/small_optsb$(b).txt", String)
+#     opts = [parse(Float64,x) for x in split(content)]
+
     
-    n = Int(content_float[1])
-    content_float = content_float[2:end]
+#     n = Int(content_float[1])
+#     content_float = content_float[2:end]
 
-    for i = 1:n
-        println(i)
-        size = Int(content_float[1])
-        content_float = content_float[2:end]
+#     for i = 1:n
+#         size = Int(content_float[1])
 
-        g = Graph(size)
+#         content_float = content_float[2:end]
+
+#         g = Graph(size)
         
-        for v = 1:size
-            for vi = v + 1:size
-                add_edge!(g, v, vi, content_float[1])
-                content_float = content_float[2:end]
-            end
-        end
-        t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
-        push!(times_1, t)
-        PRD = 100 * (weight(f) - opts[1]) / opts[1]
-        push!(PRDs_1, PRD)
-        push!(model_size_per_iterations_1, [Float64(model_size) / Float64(model_sizes_int[1]) for model_size in model_sizes_int])
-        sum_of_exceeded = 0
-        for v in vertices(f)
-            if length(delta(f, v)) == b + 1
-                sum_of_exceeded += 1
-            end
-            if length(delta(f, v)) > b + 1
-                println("Jest blad w programie 1")
-            end
-        end
-        push!(exceeded_vertices_fraction_1, Float64(sum_of_exceeded) / Float64(nv(f)))
+#         for v = 1:size
+#             for vi = v + 1:size
+#                 add_edge!(g, v, vi, content_float[1])
+#                 content_float = content_float[2:end]
+#             end
+#         end
+#         t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+#         push!(times_1[b], t)
+#         PRD = 100 * (weight(f) - opts[1]) / opts[1]
+#         push!(PRDs_1[b], PRD)
 
-        t = @elapsed (f, model_sizes_int) = mbst_additive_two(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
-        push!(times_2, t)
-        PRD = 100 * (weight(f) - opts[1]) / opts[1]
-        opts = opts[2:end]
-        push!(PRDs_2, PRD)
-        push!(model_size_per_iterations_2, [Float64(model_size) / Float64(model_sizes_int[1]) for model_size in model_sizes_int])
-        sum_of_exceeded = 0
-        for v in vertices(f)
-            if length(delta(f, v)) == b + 1
-                sum_of_exceeded += 1
-            end
-        end
-        push!(exceeded_byone_vertices_fraction_2, Float64(sum_of_exceeded) / Float64(nv(f)))
-        sum_of_exceeded = 0
-        for v in vertices(f)
-            if length(delta(f, v)) == b + 2
-                sum_of_exceeded += 1
-            end
-            if length(delta(f, v)) > b + 2
-                println("Jest blad w programie 2")
-            end
-        end
-        push!(exceeded_bytwo_vertices_fraction_2, Float64(sum_of_exceeded) / Float64(nv(g)))
+#         sum_of_exceeded = 0
+#         for v in vertices(f)
+#             if length(delta(f, v)) == b + 1
+#                 sum_of_exceeded += 1
+#             end
+#             if length(delta(f, v)) > b + 1
+#                 println("Jest blad w programie 1")
+#             end
+#         end
+#         push!(exceeded_vertices_1[b], sum_of_exceeded)
 
-    end
-end
+#         t = @elapsed (f, model_sizes_int) = mbst_additive_two(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+#         push!(times_2[b], t)
+#         PRD = 100 * (weight(f) - opts[1]) / opts[1]
+#         opts = opts[2:end]
+#         push!(PRDs_2[b], PRD)
+#         sum_of_exceeded = 0
+#         for v in vertices(f)
+#             if length(delta(f, v)) == b + 1
+#                 sum_of_exceeded += 1
+#             end
+#         end
+#         push!(exceeded_byone_vertices_2[b], sum_of_exceeded)
+#         sum_of_exceeded = 0
+#         for v in vertices(f)
+#             if length(delta(f, v)) == b + 2
+#                 sum_of_exceeded += 1
+#             end
+#             if length(delta(f, v)) > b + 2
+#                 println("Jest blad w programie 2")
+#             end
+#         end
+#         push!(exceeded_bytwo_vertices_2[b], sum_of_exceeded)
+
+#     end
+# end
 
 # Rysowanie wyników
 
@@ -117,154 +128,115 @@ gr()
 
 # Wykres z czasów obliczeń
 
-timesb2 = times_1[1:20]
-timesb3 = times_1[21:40]
-timesb5 = times_1[41:60]
 
-avgtimesb2 = Vector{Float64}(undef, 0)
-avgtimesb3 = Vector{Float64}(undef, 0)
-avgtimesb5 = Vector{Float64}(undef, 0)
+avgtimes_1 = Dict{Int, Vector{Float64}}()
+avgtimes_2 = Dict{Int, Vector{Float64}}()
 
-for i = 1:4
-    push!(avgtimesb2, Statistics.mean(timesb2[(i - 1) * 5 + 1:(i * 5)]))
-    push!(avgtimesb3, Statistics.mean(timesb3[(i - 1) * 5 + 1:(i * 5)]))
-    push!(avgtimesb5, Statistics.mean(timesb5[(i - 1) * 5 + 1:(i * 5)]))
+for b in bounds
+    avgtimes_1[b] = Vector{Float64}(undef, 0)
+    avgtimes_2[b] = Vector{Float64}(undef, 0)
+
+    for i = 1:length(sizes)
+        push!(avgtimes_1[b], Statistics.mean(times_1[b][(i - 1) * 5 + 1:(i * 5)]))
+        push!(avgtimes_2[b], Statistics.mean(times_2[b][(i - 1) * 5 + 1:(i * 5)]))
+    end
+end
+
+times_p = Plots.plot()
+for b in bounds
+    Plots.plot!(times_p, sizes, avgtimes_1[b], label = "b = $(b), Singh i Lau")
+
+end
+
+for b in bounds
+    Plots.plot!(times_p, sizes, avgtimes_2[b], label = "b = $(b), Goemans")
+end
+
+Plots.plot!(times_p, legend = :topleft, ylabel = "Czas [s]", xlabel = "Liczba wierzchołków")
+
+Plots.savefig(times_p, "results/mbst_times_plot.png")
+# Wykres ARPD 
+
+avgprd_1 = Dict{Int, Vector{Float64}}()
+avgprd_2 = Dict{Int, Vector{Float64}}()
+
+for b in bounds
+    avgprd_1[b] = Vector{Float64}(undef, 0)
+    avgprd_2[b] = Vector{Float64}(undef, 0)
+
+    for i = 1:length(sizes)
+        push!(avgprd_1[b], Statistics.mean(PRDs_1[b][(i - 1) * 5 + 1:(i * 5)]))
+        push!(avgprd_2[b], Statistics.mean(PRDs_2[b][(i - 1) * 5 + 1:(i * 5)]))
+    end
+end
+
+aprd_p1 = Plots.plot()
+aprd_p2 = Plots.plot()
+for b in bounds
+    Plots.plot!(aprd_p1, sizes, avgprd_1[b], label = "b  = $(b)", linestyle=:auto)
+    Plots.plot!(aprd_p2, sizes, avgprd_2[b], label = "b = $(b)", linestyle=:auto)
 end
 
 
-times_p = Plots.plot([30, 40, 50, 60], avgtimesb2, label = "ograniczenie 2")
-Plots.plot!(times_p, [30, 40, 50, 60], avgtimesb3, label = "ograniczenie 3")
-Plots.plot!(times_p, [30, 40, 50, 60], avgtimesb5, label = "ograniczenie 5", xlabel = "Czas", ylabel = "czas [s]")
+Plots.plot!(aprd_p1, legend = :topleft, xlabel = "Ilość wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
+Plots.plot!(aprd_p2, legend = :topleft, xlabel = "Ilość wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
+Plots.savefig(aprd_p1, "results/mbst+1_aprd_plot.png")
+Plots.savefig(aprd_p2, "results/mbst+2_aprd_plot.png")
 
-Plots.savefig(times_p, "results/mbst1_times_plot.png")
+#wykresy % przekroczonych
 
-timesb2 = times_1[1:20]
-timesb3 = times_1[21:40]
-timesb5 = times_1[41:60]
-
-avgtimesb2 = Vector{Float64}(undef, 0)
-avgtimesb3 = Vector{Float64}(undef, 0)
-avgtimesb5 = Vector{Float64}(undef, 0)
-
-for i = 1:4
-    push!(avgtimesb2, Statistics.mean(timesb2[(i - 1) * 5 + 1:(i * 5)]))
-    push!(avgtimesb3, Statistics.mean(timesb3[(i - 1) * 5 + 1:(i * 5)]))
-    push!(avgtimesb5, Statistics.mean(timesb5[(i - 1) * 5 + 1:(i * 5)]))
+open("results/mbst+1b2_exceeded", "w") do io
+    for size in sizes
+        write(io, " $(size) &")
+    end
+    write(io, "\\\\\n")
+    for i = 1:5
+        for j = 0:10
+            write(io, " $(exceeded_vertices_1[2][5 * j + i]) &")
+        end
+        write(io, "\\\\\n")
+    end
+end
+open("results/mbst+2b2_exceeded", "w") do io
+    for size in sizes
+        write(io, " $(size) &")
+    end
+    write(io, "\\\\\n")
+    for i = 1:5
+        for j = 0:10
+            write(io, " $(exceeded_byone_vertices_2[2][5 * j + i]) &")
+        end
+        write(io, "\\\\\n")
+    end
 end
 
-
-times_p = Plots.plot([30, 40, 50, 60], avgtimesb2, label = "ograniczenie 2")
-Plots.plot!(times_p, [30, 40, 50, 60], avgtimesb3, label = "ograniczenie 3")
-Plots.plot!(times_p, [30, 40, 50, 60], avgtimesb5, label = "ograniczenie 5", xlabel = "Czas", ylabel = "czas [s]")
-
-Plots.savefig(times_p, "results/mbst2_times_plot.png")
+# avgexceeded_1 = Dict{Int, Vector{Float64}}()
+# avgexceeded_by_one_2 = Dict{Int, Vector{Float64}}()
+# avgexceeded_by_two_2 = Dict{Int, Vector{Float64}}()
 
 
-# # Wykres ARPD 
+# for b in bounds
+#     avgexceeded_1[b] = Vector{Float64}(undef, 0)
+#     avgexceeded_by_one_2[b] = Vector{Float64}(undef, 0)
+#     avgexceeded_by_two_2[b] = Vector{Float64}(undef, 0)
 
-# PRDs5 = PRDs[1:20]
-# PRDs8 = PRDs[21:40]
-# PRDs10 = PRDs[41:60]
-
-# APRD5 = Vector{Float64}(undef, 0)
-# APRD8 = Vector{Float64}(undef, 0)
-# APRD10 = Vector{Float64}(undef, 0)
-
-# for i = 1:4
-#     push!(APRD5, Statistics.mean(PRDs5[(i - 1) * 5 + 1:(i * 5)]))
-#     push!(APRD8, Statistics.mean(PRDs8[(i - 1) * 5 + 1:(i * 5)]))
-#     push!(APRD10, Statistics.mean(PRDs10[(i - 1) * 5 + 1:(i * 5)]))
-# end
-
-
-# p = Plots.plot([1:4], APRD5, label = "5 maszyn")
-# Plots.plot!(p, [1:4], APRD8, label = "8 maszyn")
-# Plots.plot!(p, [1:4], APRD10, label = "10 maszyn", xlabel = "Stosunek ilości zadań do maszyn r", ylabel = "ARPD [%]")
-
-
-# Plots.savefig(p, "results/aprd_plot.png")
-
-# # Wykres sredniego czasu przekroczenia maszyn 
-# # oraz wykres procentu egzemplarzy na poszczególne iteracje
-
-
-# # Wyróżniamy konfiguracje m5j15, m10j30, m10j60
-
-# mspi515 = model_size_per_iterations[1:5]
-# mspi1030 = model_size_per_iterations[41:45]
-# mspi1060 = model_size_per_iterations[56:60]
-
-
-# Amspi515 = Vector{Float64}(undef, 0)
-# Amspi1030 = Vector{Float64}(undef, 0)
-# Amspi1060 = Vector{Float64}(undef, 0)
-# aipi515 = Vector{Float64}(undef, 0)
-# aipi1030 = Vector{Float64}(undef, 0)
-# aipi1060 = Vector{Float64}(undef, 0)
-
-
-# for j = 1:maximum([length(mspi515[i]) for i = 1:5])
-#     sum = 0.
-#     amount = 0.
-#     for i = 1:5
-#         if length(mspi515[i]) >= j
-#             sum += mspi515[i][j] / mspi515[i][1]
-#             amount += 1
-#         end
+#     for i = 1:length(sizes)
+#         push!(avgexceeded_1[b], Statistics.mean(exceeded_vertices_fraction_1[b][(i - 1) * 5 + 1:(i * 5)]))
+#         push!(avgexceeded_by_one_2[b], Statistics.mean(exceeded_byone_vertices_fraction_2[b][(i - 1) * 5 + 1:(i * 5)]))
+#         push!(avgexceeded_by_two_2[b], Statistics.mean(exceeded_bytwo_vertices_fraction_2[b][(i - 1) * 5 + 1:(i * 5)]))
 #     end
-#     push!(Amspi515, 100 * sum / 5)
-#     push!(aipi515, 100 * amount / 5)
 # end
 
-# for j = 1:maximum([length(mspi1030[i]) for i = 1:5])
-#     sum = 0.
-#     amount = 0.
-#     for i = 1:5
-#         if length(mspi1030[i]) >= j
-#             sum += mspi1030[i][j] / mspi1030[i][1]
-#             amount += 1
-#         end
-#     end
-#     push!(Amspi1030, 100 * sum / 5)
-#     push!(aipi1030, 100 * amount / 5)
+# exceeded_p1 = Plots.plot()
+# exceeded_p2 = Plots.plot()
+# for b in bounds
+#     Plots.plot!(exceeded_p1, sizes, avgexceeded_1[b], label = "b  = $(b)", linestyle=:auto)
+#     Plots.plot!(exceeded_p2, sizes, avgexceeded_by_one_2[b], label = "przekroczone o 1, b = $(b)", linestyle=:auto)
+#     Plots.plot!(exceeded_p2, sizes, avgexceeded_by_two_2[b], label = "przekroczone o 1, b = $(b)", linestyle=:auto)
+
 # end
 
-# for j = 1:maximum([length(mspi1060[i]) for i = 1:5])
-#     sum = 0.
-#     amount = 0.
-#     for i = 1:5
-#         if length(mspi1060[i]) >= j
-#             sum += mspi1060[i][j] / mspi1060[i][1]
-#             amount += 1
-#         end
-#     end
-#     push!(Amspi1060, 100 * sum / 5)
-#     push!(aipi1060, 100 * amount / 5)
-# end
-
-# while length(Amspi515) != max(length(Amspi515), length(Amspi1030), length(Amspi1060))
-#     push!(Amspi515, 0.)
-#     push!(aipi515, 0.)
-# end
-
-# while length(Amspi1030) != max(length(Amspi515), length(Amspi1030), length(Amspi1060))
-#     push!(Amspi1030, 0.)
-#     push!(aipi1030, 0.)
-# end
-
-# while length(Amspi1060) != max(length(Amspi515), length(Amspi1030), length(Amspi1060))
-#     push!(Amspi1060, 0.)
-#     push!(aipi1060, 0)
-# end
-
-# p = Plots.plot([1:length(Amspi515)], Amspi515, label = "5 maszyn, 15 zadań")
-# Plots.plot!(p, [1:length(Amspi515)], Amspi1030, label = "10 maszyn, 30zadań")
-# Plots.plot!(p, [1:length(Amspi515)], Amspi1060, label = "10 maszyn, 60 zadań", xlabel = "Liczba iteracji", ylabel = "Wielkość modelu LP [%]")
-
-# Plots.savefig(p, "results/amspi.png")
-
-# p = Plots.plot([1:length(aipi515)], aipi515, label = "5 maszyn, 15 zadań")
-# Plots.plot!(p, [1:length(aipi515)], aipi1030, label = "10 maszyn, 30zadań")
-# Plots.plot!(p, [1:length(aipi515)], aipi1060, label = "10 maszyn, 60 zadań", xlabel = "Liczba iteracji", ylabel = "Ilość egzemplarzy [%]", legend = :bottomleft)
-
-# Plots.savefig(p, "results/aipi.png")
+# Plots.plot!(exceeded_p1, legend = :topleft, xlabel = "Ilość wierzchołków w grafie", ylabel = "ARPD [%]")
+# Plots.plot!(exceeded_p2, legend = :topleft, xlabel = "Ilość wierzchołków w grafie", ylabel = "ARPD [%]")
+# Plots.savefig(exceeded_p1, "results/mbst+1_exceeded_plot.png")
+# Plots.savefig(exceeded_p2, "results/mbst+2_exceeded_plot2.png")
