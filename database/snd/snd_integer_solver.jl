@@ -95,7 +95,7 @@ function snd_opt(h::Graph, r::Array{Int, 2})::Float64
 end
 
 
-open("database/snd/optBig.txt", "w") do io
+open("database/snd/opts.txt", "w") do io
     content = Base.read("database/snd/networks.txt",String)
     content_float = [parse(Float64,x) for x in split(content)]
 
