@@ -1,8 +1,13 @@
 push!(LOAD_PATH, pwd())
 using IterativeMethods
 using MyGraph
+import Pkg
+Pkg.add("Plots")
+Pkg.add("GR")
+Pkg.add("Statistics")
 using Statistics
 using Plots
+using GR
 
 
 sizes = [10,11,12,13,14,15,16,17,18,19,20]

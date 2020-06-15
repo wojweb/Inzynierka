@@ -1,8 +1,8 @@
  push!(LOAD_PATH, pwd())
  import Pkg
-#  Pkg.add("Plots")
-#  Pkg.add("GR")
-#  Pkg.add("Statistics")
+ Pkg.add("Plots")
+ Pkg.add("GR")
+ Pkg.add("Statistics")
  using MyGraph
  using IterativeMethods
 using Plots
