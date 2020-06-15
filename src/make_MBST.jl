@@ -41,7 +41,6 @@ end
 t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
 end
 
-println("Rozgrzany")
 
 sizes = [10,11,12,13,14,15,16,17,18,19,20]
 
