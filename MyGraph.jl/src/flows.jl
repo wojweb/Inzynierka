@@ -19,10 +19,12 @@ function bfs(g::Graph, s::Int, t::Int, parents::Vector{Int})::Tuple{Bool, Array{
     return (visited[t], [i for i in 1:nv(g) if visited[i]])
 end
 
+# Uwaga, uzywac tylko dla grafow skierowanychs
 function fordfulkerson(g::Graph, s::Int, t::Int)::Tuple{Float64, Array{Int, 1}}
+    g = deepcopy(g)
     resg = deepcopy(g)
     parents = Vector{Int}(undef, nv(g))
-    maxflow = 0
+    maxflow = 0.
 
     is_reachable, visited = bfs(resg, s, t, parents)
     is_good = true
@@ -53,12 +55,13 @@ function fordfulkerson(g::Graph, s::Int, t::Int)::Tuple{Float64, Array{Int, 1}}
             v = u
         end
 
+        # println(pathflow)
         maxflow += pathflow
 
         for vi in vertices(resg), vj in vertices(resg)
             if has_edge(resg, vi, vj) && weight(resg, vi, vj) < 0
                 is_good = false;
-                println(resg)
+                # println(resg)
             end
         end
         @assert is_good

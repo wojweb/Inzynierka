@@ -4,14 +4,14 @@ push!(LOAD_PATH, pwd())
 using MyGraph
 
 relation = Dict()
-sizes = [13, 14, 15, 16, 17]
+sizes = [10,11,12,13, 14, 15, 16, 17,18,19,20]
 
 open("database/snd/networks.txt", "w") do io
     write(io, "$(length(sizes) * 5)\n")
 
     for size = sizes
         for n = 1:5
-            xdoc = parse_file("/home/s236592/Inzynierka/database/snd/directed-germany50-DFN-aggregated-1month-over-1year/demandMatrix-germany50-DFN-1month-20040$(n).xml")
+            xdoc = parse_file("database/snd/directed-germany50-DFN-aggregated-1month-over-1year/demandMatrix-germany50-DFN-1month-20040$(n).xml")
 
             xroot = root(xdoc)
 
@@ -61,18 +61,21 @@ open("database/snd/networks.txt", "w") do io
                 end
             end
 
-            for i = size + 1:nv(g)
-                rem_vertex!(g, i)
+            while nv(g) != size
+                rem_vertex!(g, rand(vertices(g)))
             end
+
             write(io, "$(size)\n")
-            for v = 1:size
-                for vi = v + 1:size
+            for v in vertices(g)
+                for vi in vertices(g)
+                if vi > v
                     write(io, "$(weight(g, v, vi)) ")
                 end
+            end
                 write(io, "\n")
             end
-            for col = 1:size
-                for row = 1:size
+            for col in vertices(g)
+                for row in vertices(g)
                     write(io, "$(r[col, row]) ")
                 end
                 write(io, "\n")
