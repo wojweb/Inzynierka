@@ -51,7 +51,7 @@ for i = 1:1
 
  
 
-        t = @elapsed (f, number_of_edges_info) = generalized_assignment(g, numberOfJobs, processing_times, machienes_times)
+        t = @elapsed (f, number_of_edges_info) = gap(g, numberOfJobs, processing_times, machienes_times)
 
     end
 end
