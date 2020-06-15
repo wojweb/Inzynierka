@@ -114,7 +114,7 @@ end
 PRDs_p = Plots.plot(sizes, avgprds, ylabel = "ARPD [%]", xlabel = "Liczba wierzchołków", legend = false)
 Plots.savefig(PRDs_p, "results/snd_aprd_plot.png")
 
-sizes_per_i_p = Plots.plot(xlabel = "Liczba iteracji", ylabel = "Wielkość modelu LP [%]", discrete_values)
+sizes_per_i_p = Plots.plot(xlabel = "Liczba iteracji", ylabel = "Wielkość modelu LP [%]")
 for sizes_per_i in model_size_per_iterations
     while length(sizes_per_i) < 3
         push!(sizes_per_i, 0)
