@@ -106,7 +106,7 @@ for i = 1:12
 
  
 
-        t = @elapsed (f, number_of_edges_info) = generalized_assignment(g, numberOfJobs, processing_times, machienes_times)
+        t = @elapsed (f, number_of_edges_info) = gap(g, numberOfJobs, processing_times, machienes_times)
 
 
         global opts
