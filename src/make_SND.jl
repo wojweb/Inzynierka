@@ -58,9 +58,11 @@ content = Base.read("database/snd/networks.txt",String)
 content_float = [parse(Float64,x) for x in split(content)]
 content = Base.read("database/snd/opts.txt",String)
 opts = [parse(Float64,x) for x in split(content)]
-
 n = Int(content_float[1])
 content_float = content_float[2:end]
+
+mkpath("results")
+open("results/snd_results.txt", "w") do io
 for i = 1:n
         global content_float
         global opts
@@ -84,13 +86,14 @@ for i = 1:n
             end
         end
         t = @elapsed (f, sizes_per_iteration) = snd(g, r)
+        write(io, "$(weight(f))\n")
         push!(times, t)
         PRD = 100 * (weight(f) - opts[1]) / opts[1]
         opts = opts[2:end]
         push!(PRDs, PRD)
         push!(model_size_per_iterations, [Float64(s) / Float64(sizes_per_iteration[1]) for s in sizes_per_iteration])   
 end
-
+end
 
 # Rysowanie wyników
 
@@ -114,7 +117,7 @@ end
 PRDs_p = Plots.plot(sizes, avgprds, ylabel = "ARPD [%]", xlabel = "Liczba wierzchołków", legend = false)
 Plots.savefig(PRDs_p, "results/snd_aprd_plot.png")
 
-sizes_per_i_p = Plots.plot(xlabel = "Liczba iteracji", ylabel = "Wielkość modelu LP [%]")
+sizes_per_i_p = Plots.plot(xlabel = "Liczba iteracji", ylabel = "Rozmiar modelu LP [%]")
 for sizes_per_i in model_size_per_iterations
     while length(sizes_per_i) < 3
         push!(sizes_per_i, 0)

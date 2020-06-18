@@ -49,12 +49,15 @@ for i = 1:1
         end
         content_int = content_int[numberOfMachines + 1:end]
 
- 
 
         t = @elapsed (f, number_of_edges_info) = gap(g, numberOfJobs, processing_times, machienes_times)
 
     end
 end
+
+
+mkpath("results")
+
 
 
 # Wlasciwe wykonywanie eksperymentów
@@ -67,7 +70,7 @@ model_size_per_iterations = Vector{Vector{Float64}}(undef, 0)
 
 content_opts = Base.read("database/gap/opts.txt", String)
 opts = [parse(Int, x) for x in split(content_opts)]
-
+open("results/gap_results.txt", "w") do io
 for i = 1:12
 
     content = Base.read("database/gap/gap$(i).txt",String)
@@ -107,7 +110,7 @@ for i = 1:12
  
 
         t = @elapsed (f, number_of_edges_info) = gap(g, numberOfJobs, processing_times, machienes_times)
-
+        write(io, "$(weight(f)) ")
 
         global opts
         PRD = 100 * (weight(f) - opts[1]) / opts[1]
@@ -134,11 +137,11 @@ for i = 1:12
         push!(exceeded_machines_fractions, 100 * numberOfExceededMachines / numberOfMachines)
         push!(model_size_per_iterations, number_of_edges_info)
     end
+    write(io, "\n")
 end
-
+end
 # Rysowanie wyników
 
-mkpath("results")
 
 
 gr()
@@ -162,7 +165,7 @@ end
 
 times_p = Plots.plot([1:4], avgtimes5, label = "5 maszyn")
 Plots.plot!(times_p, [1:4], avgtimes8, label = "8 maszyn")
-Plots.plot!(times_p, [1:4], avgtimes10, label = "10 maszyn", xlabel = "Stosunek ilości zadań do maszyn r", ylabel = "czas [s]")
+Plots.plot!(times_p, [1:4], avgtimes10, label = "10 maszyn", xlabel = "Stosunek liczby zadań do maszyn r", ylabel = "Czas [s]")
 
 
 Plots.savefig(times_p, "results/times_plot.png")
@@ -187,7 +190,7 @@ end
 
 p = Plots.plot([1:4], APRD5, label = "5 maszyn")
 Plots.plot!(p, [1:4], APRD8, label = "8 maszyn")
-Plots.plot!(p, [1:4], APRD10, label = "10 maszyn", xlabel = "Stosunek ilości zadań do maszyn r", ylabel = "ARPD [%]")
+Plots.plot!(p, [1:4], APRD10, label = "10 maszyn", xlabel = "Stosunek liczby zadań do maszyn r", ylabel = "ARPD [%]")
 
 
 Plots.savefig(p, "results/aprd_plot.png")
@@ -267,12 +270,61 @@ end
 
 p = Plots.plot([1:length(Amspi515)], Amspi515, label = "5 maszyn, 15 zadań")
 Plots.plot!(p, [1:length(Amspi515)], Amspi1030, label = "10 maszyn, 30zadań")
-Plots.plot!(p, [1:length(Amspi515)], Amspi1060, label = "10 maszyn, 60 zadań", xlabel = "Liczba iteracji", ylabel = "Wielkość modelu LP [%]")
+Plots.plot!(p, [1:length(Amspi515)], Amspi1060, label = "10 maszyn, 60 zadań", xlabel = "Liczba iteracji", ylabel = "Rozmiar modelu LP [%]")
 
 Plots.savefig(p, "results/amspi.png")
 
 p = Plots.plot([1:length(aipi515)], aipi515, label = "5 maszyn, 15 zadań")
 Plots.plot!(p, [1:length(aipi515)], aipi1030, label = "10 maszyn, 30zadań")
-Plots.plot!(p, [1:length(aipi515)], aipi1060, label = "10 maszyn, 60 zadań", xlabel = "Liczba iteracji", ylabel = "Ilość egzemplarzy [%]", legend = :bottomleft)
+Plots.plot!(p, [1:length(aipi515)], aipi1060, label = "10 maszyn, 60 zadań", xlabel = "Liczba iteracji", ylabel = "Liczba egzemplarzy [%]", legend = :bottomleft)
 
 Plots.savefig(p, "results/aipi.png")
+
+
+# Wykres średniej ilości przekroczonych maszyn 
+
+EMFs5 = exceeded_machines_fractions[1:20]
+EMFs8 = exceeded_machines_fractions[21:40]
+EMFs10 = exceeded_machines_fractions[41:60]
+
+AEMF5 = Vector{Float64}(undef, 0)
+AEMF8 = Vector{Float64}(undef, 0)
+AEMF10 = Vector{Float64}(undef, 0)
+
+for i = 1:4
+    push!(AEMF5, Statistics.mean(EMFs5[(i - 1) * 5 + 1:(i * 5)]))
+    push!(AEMF8, Statistics.mean(EMFs8[(i - 1) * 5 + 1:(i * 5)]))
+    push!(AEMF10, Statistics.mean(EMFs10[(i - 1) * 5 + 1:(i * 5)]))
+end
+
+
+p = Plots.plot([1:4], AEMF5, label = "5 maszyn")
+Plots.plot!(p, [1:4], AEMF8, label = "8 maszyn")
+Plots.plot!(p, [1:4], AEMF10, label = "10 maszyn", xlabel = "Stosunek liczby zadań do maszyn r", ylabel = "Procent maszyn o przekroczonym dostępie [%]")
+
+
+Plots.savefig(p, "results/exceeded_machines_plot.png")
+
+#  Wykres sredniej wartosci przekroczenia maszyn
+
+overflows5 = overflows[1:20]
+overflows8 = overflows[21:40]
+overflows10 = overflows[41:60]
+
+aoflow5 = Vector{Float64}(undef, 0)
+aoflow8 = Vector{Float64}(undef, 0)
+aoflow10 = Vector{Float64}(undef, 0)
+
+for i = 1:4
+    push!(aoflow5, Statistics.mean(overflows5[(i - 1) * 5 + 1:(i * 5)]))
+    push!(aoflow8, Statistics.mean(overflows8[(i - 1) * 5 + 1:(i * 5)]))
+    push!(aoflow10, Statistics.mean(overflows10[(i - 1) * 5 + 1:(i * 5)]))
+end
+
+
+p = Plots.plot([1:4], aoflow5, label = "5 maszyn")
+Plots.plot!(p, [1:4], aoflow8, label = "8 maszyn")
+Plots.plot!(p, [1:4], aoflow10, label = "10 maszyn", xlabel = "Stosunek liczby zadań do maszyn r", ylabel = "Średnie WPCD [%]")
+
+
+Plots.savefig(p, "results/overflow_plot.png")

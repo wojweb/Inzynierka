@@ -41,6 +41,9 @@ end
 t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
 end
 
+mkpath("results")
+
+
 
 sizes = [10,11,12,13,14,15,16,17,18,19,20]
 
@@ -58,6 +61,10 @@ for b = bounds
     content_float = [parse(Float64,x) for x in split(content)]
     content = Base.read("database/mbst/small_optsb$(b).txt", String)
     opts = [parse(Float64,x) for x in split(content)]
+
+    io1 = open("results/mbst+1b$(b)_results.txt", "w")
+    io2 = open("results/mbst+2b$(b)_results.txt", "w")
+
 
     
     n = Int(content_float[1])
@@ -77,6 +84,7 @@ for b = bounds
             end
         end
         t = @elapsed (f, model_sizes_int) = mbst_additive_one(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+        write(io1, "$(weight(f))\n")
         push!(times_1[b], t)
         PRD = 100 * (weight(f) - opts[1]) / opts[1]
         push!(PRDs_1[b], PRD)
@@ -93,6 +101,7 @@ for b = bounds
         push!(exceeded_vertices_1[b], sum_of_exceeded)
 
         t = @elapsed (f, model_sizes_int) = mbst_additive_two(g, Set(vertices(g)), Dict([(v,b) for v in vertices(g)]))
+        write(io2, "$(weight(f))\n")
         push!(times_2[b], t)
         PRD = 100 * (weight(f) - opts[1]) / opts[1]
         opts = opts[2:end]
@@ -116,11 +125,14 @@ for b = bounds
         push!(exceeded_bytwo_vertices_2[b], sum_of_exceeded)
 
     end
+
+    close(io1)
+    close(io2)
+
 end
 
 # Rysowanie wyników
 
-mkpath("results")
 
 
 gr()
@@ -177,8 +189,8 @@ for b in bounds
 end
 
 
-Plots.plot!(aprd_p1, legend = :topleft, xlabel = "Ilość wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
-Plots.plot!(aprd_p2, legend = :topleft, xlabel = "Ilość wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
+Plots.plot!(aprd_p1, legend = :topleft, xlabel = "Liczba wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
+Plots.plot!(aprd_p2, legend = :topleft, xlabel = "Liczba wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
 Plots.savefig(aprd_p1, "results/mbst+1_aprd_plot.png")
 Plots.savefig(aprd_p2, "results/mbst+2_aprd_plot.png")
 
@@ -208,34 +220,3 @@ open("results/mbst+2b2_exceeded", "w") do io
         write(io, "\\\\\n")
     end
 end
-
-# avgexceeded_1 = Dict{Int, Vector{Float64}}()
-# avgexceeded_by_one_2 = Dict{Int, Vector{Float64}}()
-# avgexceeded_by_two_2 = Dict{Int, Vector{Float64}}()
-
-
-# for b in bounds
-#     avgexceeded_1[b] = Vector{Float64}(undef, 0)
-#     avgexceeded_by_one_2[b] = Vector{Float64}(undef, 0)
-#     avgexceeded_by_two_2[b] = Vector{Float64}(undef, 0)
-
-#     for i = 1:length(sizes)
-#         push!(avgexceeded_1[b], Statistics.mean(exceeded_vertices_fraction_1[b][(i - 1) * 5 + 1:(i * 5)]))
-#         push!(avgexceeded_by_one_2[b], Statistics.mean(exceeded_byone_vertices_fraction_2[b][(i - 1) * 5 + 1:(i * 5)]))
-#         push!(avgexceeded_by_two_2[b], Statistics.mean(exceeded_bytwo_vertices_fraction_2[b][(i - 1) * 5 + 1:(i * 5)]))
-#     end
-# end
-
-# exceeded_p1 = Plots.plot()
-# exceeded_p2 = Plots.plot()
-# for b in bounds
-#     Plots.plot!(exceeded_p1, sizes, avgexceeded_1[b], label = "b  = $(b)", linestyle=:auto)
-#     Plots.plot!(exceeded_p2, sizes, avgexceeded_by_one_2[b], label = "przekroczone o 1, b = $(b)", linestyle=:auto)
-#     Plots.plot!(exceeded_p2, sizes, avgexceeded_by_two_2[b], label = "przekroczone o 1, b = $(b)", linestyle=:auto)
-
-# end
-
-# Plots.plot!(exceeded_p1, legend = :topleft, xlabel = "Ilość wierzchołków w grafie", ylabel = "ARPD [%]")
-# Plots.plot!(exceeded_p2, legend = :topleft, xlabel = "Ilość wierzchołków w grafie", ylabel = "ARPD [%]")
-# Plots.savefig(exceeded_p1, "results/mbst+1_exceeded_plot.png")
-# Plots.savefig(exceeded_p2, "results/mbst+2_exceeded_plot2.png")
