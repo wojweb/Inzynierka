@@ -3,6 +3,8 @@
  Pkg.add("Plots")
  Pkg.add("GR")
  Pkg.add("Statistics")
+ Pkg.add("JuMP")
+ Pkg.add("GLPK")
  using MyGraph
  using IterativeMethods
 using Plots
@@ -57,9 +59,9 @@ for b = bounds
     exceeded_byone_vertices_2[b] = Vector{Int}(undef, 0)
     exceeded_bytwo_vertices_2[b] = Vector{Int}(undef, 0)
 
-    content = Base.read("database/mbst/small_trees.txt",String)
+    content = Base.read("database/mbst/trees.txt",String)
     content_float = [parse(Float64,x) for x in split(content)]
-    content = Base.read("database/mbst/small_optsb$(b).txt", String)
+    content = Base.read("database/mbst/optsb$(b).txt", String)
     opts = [parse(Float64,x) for x in split(content)]
 
     io1 = open("results/mbst+1b$(b)_results.txt", "w")

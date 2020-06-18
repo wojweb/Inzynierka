@@ -129,10 +129,10 @@ bounds = [2,3,5]
 
 
 for b = bounds
-    open("database/mbst/small_optsb$(b).txt", "w") do io
+    open("database/mbst/optsb$(b).txt", "w") do io
 
 
-        content = Base.read("database/mbst/small_trees.txt",String)
+        content = Base.read("database/mbst/trees.txt",String)
         content_float = [parse(Float64,x) for x in split(content)]
 
         n = Int(content_float[1])

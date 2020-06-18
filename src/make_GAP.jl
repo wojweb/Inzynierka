@@ -1,3 +1,9 @@
+import Pkg
+Pkg.add("Plots")
+Pkg.add("GR")
+Pkg.add("Statistics")
+Pkg.add("JuMP")
+Pkg.add("GLPK")
 push!(LOAD_PATH, pwd())
 using MyGraph
 using IterativeMethods
@@ -168,7 +174,7 @@ Plots.plot!(times_p, [1:4], avgtimes8, label = "8 maszyn")
 Plots.plot!(times_p, [1:4], avgtimes10, label = "10 maszyn", xlabel = "Stosunek liczby zadań do maszyn r", ylabel = "Czas [s]")
 
 
-Plots.savefig(times_p, "results/times_plot.png")
+Plots.savefig(times_p, "results/gap_times_plot.png")
 
 
 # Wykres ARPD 
@@ -193,7 +199,7 @@ Plots.plot!(p, [1:4], APRD8, label = "8 maszyn")
 Plots.plot!(p, [1:4], APRD10, label = "10 maszyn", xlabel = "Stosunek liczby zadań do maszyn r", ylabel = "ARPD [%]")
 
 
-Plots.savefig(p, "results/aprd_plot.png")
+Plots.savefig(p, "results/gap_aprd_plot.png")
 
 # Wykres sredniego czasu przekroczenia maszyn 
 # oraz wykres procentu egzemplarzy na poszczególne iteracje
@@ -272,13 +278,13 @@ p = Plots.plot([1:length(Amspi515)], Amspi515, label = "5 maszyn, 15 zadań")
 Plots.plot!(p, [1:length(Amspi515)], Amspi1030, label = "10 maszyn, 30zadań")
 Plots.plot!(p, [1:length(Amspi515)], Amspi1060, label = "10 maszyn, 60 zadań", xlabel = "Liczba iteracji", ylabel = "Rozmiar modelu LP [%]")
 
-Plots.savefig(p, "results/amspi.png")
+Plots.savefig(p, "results/gap_amspi.png")
 
 p = Plots.plot([1:length(aipi515)], aipi515, label = "5 maszyn, 15 zadań")
 Plots.plot!(p, [1:length(aipi515)], aipi1030, label = "10 maszyn, 30zadań")
 Plots.plot!(p, [1:length(aipi515)], aipi1060, label = "10 maszyn, 60 zadań", xlabel = "Liczba iteracji", ylabel = "Liczba egzemplarzy [%]", legend = :bottomleft)
 
-Plots.savefig(p, "results/aipi.png")
+Plots.savefig(p, "results/gap_aipi.png")
 
 
 # Wykres średniej ilości przekroczonych maszyn 
@@ -303,7 +309,7 @@ Plots.plot!(p, [1:4], AEMF8, label = "8 maszyn")
 Plots.plot!(p, [1:4], AEMF10, label = "10 maszyn", xlabel = "Stosunek liczby zadań do maszyn r", ylabel = "Procent maszyn o przekroczonym dostępie [%]")
 
 
-Plots.savefig(p, "results/exceeded_machines_plot.png")
+Plots.savefig(p, "results/gap_exceeded_machines_plot.png")
 
 #  Wykres sredniej wartosci przekroczenia maszyn
 
@@ -327,4 +333,4 @@ Plots.plot!(p, [1:4], aoflow8, label = "8 maszyn")
 Plots.plot!(p, [1:4], aoflow10, label = "10 maszyn", xlabel = "Stosunek liczby zadań do maszyn r", ylabel = "Średnie WPCD [%]")
 
 
-Plots.savefig(p, "results/overflow_plot.png")
+Plots.savefig(p, "results/gap_overflow_plot.png")
