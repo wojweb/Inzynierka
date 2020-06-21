@@ -189,8 +189,8 @@ for b in bounds
 end
 
 
-Plots.plot!(aprd_p1, legend = :topleft, xlabel = "Liczba wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
-Plots.plot!(aprd_p2, legend = :topleft, xlabel = "Liczba wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
+Plots.plot!(aprd_p1, legend = :bottomleft, xlabel = "Liczba wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
+Plots.plot!(aprd_p2, legend = :bottomleft, xlabel = "Liczba wierzchołków w grafie", ylabel = "ARPD [%]", ylims=(-10, 0))
 Plots.savefig(aprd_p1, "results/mbst+1_aprd_plot.png")
 Plots.savefig(aprd_p2, "results/mbst+2_aprd_plot.png")
 
