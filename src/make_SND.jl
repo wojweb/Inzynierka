@@ -1,10 +1,12 @@
 push!(LOAD_PATH, pwd())
-using IterativeMethods
-using MyGraph
 import Pkg
 Pkg.add("Plots")
 Pkg.add("GR")
 Pkg.add("Statistics")
+Pkg.add("JuMP")
+Pkg.add("GLPK")
+using IterativeMethods
+using MyGraph
 using Statistics
 using Plots
 using GR
